@@ -1,0 +1,1028 @@
+.screen {
+  composes: screen from './TransactionsHistory.module.css';
+}
+
+.pageShell {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  width: 100%;
+  min-height: clamp(320px, calc(100vh - 200px), 100vh);
+  gap: 1.5rem;
+}
+
+.pageContent {
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  width: 100%;
+  flex-wrap: nowrap;
+  min-height: 44px;
+}
+
+.unifiedTopBar {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+  width: 100%;
+  flex-wrap: nowrap;
+  min-height: 44px;
+  padding: 0.5rem 0;
+}
+
+.actionBar {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  width: 100%;
+  flex-wrap: wrap;
+}
+
+.searchContainer {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex: 1 1 auto;
+  max-width: 400px;
+  min-width: 200px;
+  position: relative;
+  border-radius: 12px;
+  border: 1px solid rgba(148, 163, 184, 0.35);
+  background: rgba(248, 250, 255, 0.8);
+  padding: 0.5rem 0.75rem;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+  height: 44px;
+}
+
+.searchContainer:focus-within {
+  border-color: var(--mf-primary, #1d4ed8);
+  box-shadow: 0 0 0 3px rgba(29, 78, 216, 0.18);
+  background: #ffffff;
+}
+
+.searchIcon {
+  width: 18px;
+  height: 18px;
+  color: var(--table-muted, #64748b);
+  flex-shrink: 0;
+}
+
+.searchInput {
+  flex: 1 1 auto;
+  border: none;
+  background: transparent;
+  outline: none;
+  font-size: 0.95rem;
+  color: inherit;
+  min-width: 0;
+}
+
+.searchInput::placeholder {
+  color: var(--table-muted, #94a3b8);
+}
+
+.searchClearButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border: none;
+  background: transparent;
+  color: var(--table-muted, #64748b);
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.2s ease, color 0.2s ease;
+  flex-shrink: 0;
+}
+
+.searchClearButton:hover {
+  background: rgba(148, 163, 184, 0.2);
+  color: var(--mf-text-primary);
+}
+
+.filterActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.6rem;
+}
+
+.filterActions button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+
+.filterActionsQuickAdd {
+  display: inline-flex;
+}
+
+.filterActionsQuickAdd button {
+  border-radius: 999px;
+  padding: 0.45rem 0.95rem;
+  background: #1d4ed8;
+  color: #ffffff;
+  border: none;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  box-shadow: 0 12px 24px rgba(37, 99, 235, 0.18);
+}
+
+.filterActionsQuickAdd button:disabled {
+  opacity: 0.6;
+}
+
+.pageFooter {
+  margin-top: auto;
+  padding: 0.75rem 0.25rem 0;
+  border-top: 1px solid rgba(148, 163, 184, 0.25);
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: 0.5rem;
+  color: #64748b;
+  font-size: 0.85rem;
+  z-index: 40;
+}
+
+.footerNote {
+  font-weight: 500;
+  letter-spacing: 0.01em;
+}
+
+.pageHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 1.5rem;
+  padding: 0.5rem 0;
+  flex-wrap: wrap;
+}
+
+.pageTitleGroup {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  min-width: 0;
+}
+
+.srOnly {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.pageSubtitle {
+  color: #5f6781;
+  font-size: 0.95rem;
+  line-height: 1.4;
+  max-width: 60ch;
+}
+
+.pageHeaderActions {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.headerTabGroup {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.viewTabs {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  background: rgba(15, 23, 42, 0.05);
+  padding: 0.3rem;
+  border-radius: 999px;
+  position: relative;
+}
+
+.tabIndicator {
+  position: absolute;
+  height: 100%;
+  width: calc(50% - 0.15rem);
+  background: #1d4ed8;
+  border-radius: 999px;
+  transition: left 0.3s ease;
+  left: 0.3rem;
+  z-index: 0;
+}
+
+.viewTabs[data-position='cards'] .tabIndicator {
+  left: calc(50% + 0.15rem);
+}
+
+.tabButton {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0.4rem 0.95rem;
+  border-radius: 999px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  transition: color 0.2s ease;
+  color: #475569;
+  font-size: 0.85rem;
+  font-weight: 600;
+  z-index: 1;
+  min-width: 60px;
+}
+
+.tabButton[data-active='true'] {
+  color: #ffffff;
+}
+
+.toolbarCard {
+  composes: toolbarCard from './TransactionsHistory.module.css';
+}
+
+.toolbarLeft {
+  composes: toolbarLeft from './TransactionsHistory.module.css';
+}
+
+.searchGroup {
+  composes: searchGroup from './TransactionsHistory.module.css';
+}
+
+.searchInput {
+  composes: searchInput from './TransactionsHistory.module.css';
+}
+
+.searchIconButton {
+  composes: searchIconButton from './TransactionsHistory.module.css';
+}
+
+.searchSubmitButton {
+  composes: searchSubmitButton from './TransactionsHistory.module.css';
+  min-height: 44px;
+}
+
+.searchSubmitIcon {
+  composes: searchSubmitIcon from './TransactionsHistory.module.css';
+}
+
+.searchSubmitText {
+  composes: searchSubmitText from './TransactionsHistory.module.css';
+}
+
+.searchRestoreButton {
+  composes: searchRestoreButton from './TransactionsHistory.module.css';
+}
+
+.searchClearButton {
+  composes: searchClearButton from './TransactionsHistory.module.css';
+}
+
+.searchInputActions {
+  composes: searchInputActions from './TransactionsHistory.module.css';
+}
+
+.actionsGroup {
+  composes: actionsGroup from './TransactionsHistory.module.css';
+}
+
+.customizeActionsGroup {
+  composes: customizeActionsGroup from './TransactionsHistory.module.css';
+}
+
+.primaryButton {
+  composes: primaryButton from './TransactionsHistory.module.css';
+  min-height: 44px;
+}
+
+.iconPrimaryButton {
+  composes: iconPrimaryButton from './TransactionsHistory.module.css';
+}
+
+.secondaryButton {
+  composes: secondaryButton from './TransactionsHistory.module.css';
+  min-height: 44px;
+}
+
+.toolbarIconButton {
+  composes: toolbarIconButton from './TransactionsHistory.module.css';
+  min-height: 44px;
+}
+
+.filterButton {
+  composes: filterButton from './TransactionsHistory.module.css';
+}
+
+.filterButtonActive {
+  composes: filterButtonActive from './TransactionsHistory.module.css';
+}
+
+.customizeButtonText {
+  composes: customizeButtonText from './TransactionsHistory.module.css';
+}
+
+.customizeToolbarActions {
+  composes: customizeToolbarActions from './TransactionsHistory.module.css';
+}
+
+.customizeSelectAll {
+  composes: customizeSelectAll from './TransactionsHistory.module.css';
+}
+
+.resetButtonText {
+  composes: resetButtonText from './TransactionsHistory.module.css';
+}
+
+.toolbarSearchRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.75rem;
+}
+
+.searchFieldCluster {
+  flex: 1 1 280px;
+  min-width: 0;
+}
+
+.searchButtonGroup {
+  display: inline-flex;
+  align-items: stretch;
+  gap: 0.5rem;
+  flex-wrap: nowrap;
+  flex-shrink: 0;
+}
+
+.toolbarActionRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.selectionActions {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.customizeRow {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  padding: 0.25rem 0;
+}
+
+.customizeToggleGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}
+
+.customizeActionsCluster {
+  display: inline-flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.customizeRow[data-refresh-visible='false'] .customizeActionsCluster {
+  justify-content: flex-start;
+}
+
+.toggleSwitch {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border: none;
+  background: var(--mf-panel-bg, rgba(233, 238, 255, 0.48));
+  border-radius: 999px;
+  padding: 0.35rem 0.75rem;
+  cursor: pointer;
+  color: #2f3367;
+  font-weight: 600;
+  transition: background 0.18s ease, box-shadow 0.18s ease;
+}
+
+.toggleSwitch[aria-pressed='true'] {
+  background: linear-gradient(135deg, #818cf8, #6366f1);
+  color: #ffffff;
+  box-shadow: 0 12px 22px rgba(99, 102, 241, 0.25);
+}
+
+.toggleSwitch:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+.toggleVisual {
+  width: 28px;
+  height: 16px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.45);
+  position: relative;
+  transition: background 0.18s ease;
+}
+
+.toggleSwitch[aria-pressed='true'] .toggleVisual {
+  background: rgba(255, 255, 255, 0.75);
+}
+
+.toggleVisual::after {
+  content: '';
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  background: #ffffff;
+  transition: transform 0.18s ease;
+}
+
+.toggleSwitch[aria-pressed='true'] .toggleVisual::after {
+  transform: translateX(12px);
+}
+
+.toggleLabel {
+  font-size: 0.85rem;
+  letter-spacing: 0.2px;
+}
+
+.tableCard {
+  composes: tableCard from './TransactionsHistory.module.css';
+}
+
+.emptyState {
+  composes: emptyState from './TransactionsHistory.module.css';
+}
+
+.viewTabs {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  padding: 0.35rem;
+  background: #f4f6fb;
+  border-radius: 999px;
+  box-shadow: inset 0 1px 3px rgba(15, 23, 42, 0.08);
+  overflow: hidden;
+}
+
+.tabIndicator {
+  position: absolute;
+  inset: 4px auto;
+  left: 4px;
+  width: calc(50% - 4px);
+  border-radius: 999px;
+  background: linear-gradient(135deg, #6b4dfd, #9b7ffd);
+  box-shadow: 0 12px 24px rgba(107, 77, 253, 0.35);
+  transition: transform 250ms ease, opacity 150ms ease;
+  z-index: 0;
+}
+
+.tabIndicator[data-position='cards'] {
+  transform: translateX(calc(100% + 0.35rem));
+}
+
+.tabButton {
+  position: relative;
+  z-index: 1;
+  border: none;
+  background: transparent;
+  font-size: 0.95rem;
+  font-weight: 600;
+  padding: 0.55rem 1.35rem;
+  border-radius: 999px;
+  color: #5b6478;
+  cursor: pointer;
+  transition: color 0.18s ease;
+}
+
+.tabButton[data-active='true'] {
+  color: #ffffff;
+}
+
+.tabButton:not([data-active='true']):hover,
+.tabButton:not([data-active='true']):focus-visible {
+  color: #2f3367;
+  outline: none;
+}
+
+.tabButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.cardsGrid {
+  display: grid;
+  gap: 1.5rem;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+}
+
+.accountCard {
+  position: relative;
+  border-radius: 20px;
+  overflow: hidden;
+  background: linear-gradient(135deg, #4f6fd9, #8b9cf0);
+  color: #ffffff;
+  box-shadow: 0 15px 30px rgba(53, 76, 140, 0.18);
+  display: flex;
+  flex-direction: column;
+  min-height: 220px;
+}
+
+.cardMedia {
+  position: relative;
+  width: 100%;
+  padding: 1.25rem;
+  flex: 1 1 auto;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background-size: cover;
+  background-position: center;
+}
+
+.cardOverlay {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(150deg, rgba(22, 24, 66, 0.78), rgba(94, 106, 195, 0.35));
+}
+
+.cardContent {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.cardTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  letter-spacing: 0.4px;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+}
+
+.cardMeta {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-size: 0.95rem;
+  color: rgba(255, 255, 255, 0.88);
+}
+
+.cardBalance {
+  font-size: 1.45rem;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  margin-top: 0.75rem;
+}
+
+.cardFooter {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 0.9rem 1.2rem;
+  background: rgba(12, 15, 44, 0.82);
+  backdrop-filter: blur(6px);
+}
+
+.statusBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  border-radius: 999px;
+  padding: 0.3rem 0.8rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  letter-spacing: 0.2px;
+  text-transform: capitalize;
+}
+
+.statusActive {
+  background: rgba(36, 197, 152, 0.18);
+  color: #0f9c6d;
+}
+
+.statusPending {
+  background: rgba(247, 181, 67, 0.22);
+  color: #c07a11;
+}
+
+.statusInactive {
+  background: rgba(237, 59, 110, 0.2);
+  color: #bb1140;
+}
+
+.statusNeutral {
+  background: rgba(120, 133, 161, 0.22);
+  color: #5f6781;
+}
+
+.cardQuickActions {
+  display: inline-flex;
+  gap: 0.4rem;
+}
+
+.quickActionButton {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  border: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.18);
+  color: #ffffff;
+  cursor: pointer;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.quickActionButton:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.36);
+}
+
+.quickActionButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.quickDockLabel {
+  composes: srOnly from './TransactionsHistory.module.css';
+}
+
+.cardsEmpty {
+  composes: emptyState from './TransactionsHistory.module.css';
+  padding: 2.5rem 1.5rem;
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 12px 32px rgba(79, 114, 205, 0.08);
+  color: #5f6781;
+}
+
+.tableWrapper {
+  composes: tableCard from './TransactionsHistory.module.css';
+  flex: 1 1 auto;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  overflow-x: auto;
+}
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.tableHeaderTitle {
+  font-weight: 600;
+  font-size: 1.05rem;
+  color: #2f3367;
+}
+
+.selectionCount {
+  composes: selectionCount from './TransactionsHistory.module.css';
+}
+
+.paginationControls {
+  composes: paginationControls from './TransactionsHistory.module.css';
+}
+
+.paginationButton {
+  composes: paginationButton from './TransactionsHistory.module.css';
+}
+
+.paginationButtonText {
+  composes: paginationButtonText from './TransactionsHistory.module.css';
+}
+
+.fontScaleButton {
+  composes: fontScaleButton from './TransactionsHistory.module.css';
+}
+
+.fontScaleButtonText {
+  composes: fontScaleButtonText from './TransactionsHistory.module.css';
+}
+
+.pageSizeGroup {
+  composes: pageSizeGroup from './TransactionsHistory.module.css';
+}
+
+.pageSizeSelect {
+  composes: pageSizeSelect from './TransactionsHistory.module.css';
+}
+
+.fontScaleReset {
+  composes: fontScaleReset from './TransactionsHistory.module.css';
+}
+
+.paginationMeta {
+  composes: paginationMeta from './TransactionsHistory.module.css';
+}
+
+.fontScaleMeta {
+  composes: fontScaleMeta from './TransactionsHistory.module.css';
+}
+
+.fontScaleLabel {
+  composes: fontScaleLabel from './TransactionsHistory.module.css';
+}
+
+.fontScaleValue {
+  composes: fontScaleValue from './TransactionsHistory.module.css';
+}
+
+.paginationStatus {
+  composes: paginationStatus from './TransactionsHistory.module.css';
+}
+
+.columnSubline {
+  margin-top: 0.2rem;
+  font-size: 0.8rem;
+  color: #7a829f;
+}
+
+.headerTabGroup {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.toolbarCard[data-enhanced='true'] {
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.headerActionButtons {
+  display: inline-flex;
+  gap: 0.75rem;
+  align-items: center;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+@media (max-width: 900px) {
+  .pageHeaderActions {
+    flex-wrap: wrap;
+  }
+
+  .cardsGrid {
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  }
+
+  .toolbarActionRow {
+    justify-content: flex-start;
+  }
+
+  .filtersSection {
+    margin: 0 -0.5rem;
+    padding: 0 0.5rem;
+  }
+
+  .filterActions {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: nowrap;
+    gap: 0.4rem;
+  }
+
+  .filterActions button,
+  .filterActionsQuickAdd button {
+    width: 44px;
+    height: 44px;
+    padding: 0;
+    justify-content: center;
+    border-radius: 12px;
+  }
+
+  .filterActions button span,
+  .filterActionsQuickAdd button span:not(.triggerIcon) {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    border: 0;
+  }
+
+  .filterActionsQuickAdd {
+    width: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .toolbarCard[data-enhanced='true'] {
+    padding: 0.75rem 0.85rem;
+  }
+
+  .toolbarSearchRow {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.5rem;
+  }
+
+  .searchButtonGroup {
+    width: 100%;
+    justify-content: space-between;
+    flex-wrap: wrap;
+  }
+
+  .searchButtonGroup > button {
+    flex: 1 1 calc(33.333% - 0.35rem);
+    min-width: 140px;
+  }
+
+  .toolbarActionRow {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  .selectionActions {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .pageHeader {
+    gap: 1rem;
+  }
+
+  .pageFooter {
+    justify-content: center;
+    padding-top: 0.5rem;
+    font-size: 0.8rem;
+  }
+
+  .filterActions {
+    gap: 0.5rem;
+  }
+
+  .filterActionsQuickAdd {
+    width: 100%;
+  }
+
+  .filterActionsQuickAdd button {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+@media (max-width: 1024px) {
+  .unifiedTopBar {
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .searchContainer {
+    order: 3;
+    flex: 1 1 100%;
+    min-width: 200px;
+  }
+
+  .filterActions {
+    order: 4;
+    flex: 1 1 100%;
+  }
+}
+
+@media (max-width: 640px) {
+  .topBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .unifiedTopBar {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0.75rem;
+  }
+
+  .headerTabGroup {
+    order: 1;
+    width: 100%;
+  }
+
+  .searchContainer {
+    order: 2;
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .filterActions {
+    order: 3;
+    width: 100%;
+  }
+
+  .actionBar {
+    flex-direction: row;
+    justify-content: flex-start;
+    gap: 0.5rem;
+  }
+
+  .actionBar button {
+    flex: 1 1 auto;
+    min-width: 0;
+  }
+}
+
+@media (max-width: 480px) {
+  .toolbarSearchRow {
+    flex-direction: column;
+  }
+
+  .searchButtonGroup {
+    justify-content: flex-start;
+    gap: 0.4rem;
+  }
+
+  .searchButtonGroup > button {
+    flex: 1 1 100%;
+    min-width: 0;
+  }
+
+  .toolbarActionRow {
+    gap: 0.6rem;
+  }
+
+  .customizeRow {
+    width: 100%;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.45rem;
+  }
+
+  .customizeActionsCluster {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .toggleLabel {
+    display: none;
+  }
+
+  .toggleSwitch {
+    padding: 0.35rem;
+    min-width: 42px;
+  }
+
+  .primaryButton,
+  .secondaryButton,
+  .toolbarIconButton,
+  .searchSubmitButton {
+    font-size: 0.9rem;
+  }
+
+  .actionBar {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .actionBar button {
+    width: 100%;
+  }
+}
+
+.tableQuickActions {
+  display: inline-flex;
+  gap: 0.35rem;
+}
+
+.tableQuickActionButton {
+  composes: quickActionButton;
+  width: 32px;
+  height: 32px;
+}
