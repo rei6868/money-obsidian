@@ -56,7 +56,7 @@ function toMonthLabel(date: Date | null): string {
 function toTransactionRecord(txn: EnrichedTransaction): TransactionRecord {
   const rawDate = txn.date ?? '';
   const sortDate = Number.isFinite(txn.sortDate)
-    ? txn.sortDate
+    ? txn.sortDate!
     : new Date(`${rawDate}T00:00:00Z`).getTime();
   const occurredOn = txn.occurredOn ?? rawDate;
   const displayDate = txn.displayDate ?? rawDate;

@@ -1,7 +1,12 @@
-import { db } from '../db/client';
+import { getDb } from '../db/client';
 
 export async function createTransaction(data: any) {
   // Transaction creation logic
+  const db = getDb();
+  if (!db) {
+    throw new Error('Database connection not available');
+  }
+  
   return db.transaction(async (tx) => {
     // Insert transaction and update related ledgers
     return data;
