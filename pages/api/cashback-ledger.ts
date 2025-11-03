@@ -1,7 +1,7 @@
+import { randomUUID } from 'crypto';
 import type { NextApiRequest, NextApiResponse } from 'next';
 import { getDb } from '../../lib/db/client';
 import { cashbackLedger, type NewCashbackLedger } from '../../src/db/schema/cashbackLedger';
-import { eq } from 'drizzle-orm';
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const db = getDb();
@@ -21,26 +21,30 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
   if (req.method === 'POST') {
     try {
-      const { accountId, balance, totalEarned, notes } = req.body;
-      
+      const { accountId, totalEarned, notes } = req.body;
+
       if (!accountId) {
         return res.status(400).json({ error: 'accountId is required' });
       }
 
+      const now = new Date();
+      const cycleTag = `${now.getFullYear()}-${(now.getMonth() + 1).toString().padStart(2, '0')}`;
+
       const newLedger: NewCashbackLedger = {
+        cashbackLedgerId: randomUUID(),
         accountId,
-        balance: balance || 0,
-        totalEarned: totalEarned || 0,
+        cycleTag,
+        totalCashback: totalEarned || '0',
+        eligibility: 'eligible',
+        status: 'open',
         notes: notes || null,
-        status: 'active',
-        createdAt: new Date(),
-        updatedAt: new Date()
       };
 
       const result = await db.insert(cashbackLedger).values(newLedger).returning();
       return res.status(201).json(result[0]);
     } catch (error) {
-      return res.status(500).json({ error: 'Failed to create cashback ledger' });
+      const err = error as Error;
+      return res.status(500).json({ error: 'Failed to create cashback ledger', details: err.message });
     }
   }
 
