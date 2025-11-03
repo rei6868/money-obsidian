@@ -1,0 +1,258 @@
+
+> money-api-headless@0.1.0 dev
+> next dev
+
+  ▲ Next.js 13.5.11
+  - Local:        http://localhost:3000
+  - Environments: .env
+
+ ✓ Ready in 1905ms
+ ✓ Compiled /api/transactions in 241ms (82 modules)
+Failed to query transactions table, falling back to mock dataset. DrizzleQueryError: Failed query: with "cashback_summary" as (select "transaction_id", coalesce(max(CASE WHEN "cashback_type" = 'percent' THEN "cashback_value"::numeric END), 0) as "percentBack", coalesce(sum(CASE WHEN "cashback_type" = 'fixed' THEN "cashback_value"::numeric END), 0) as "fixedBack", coalesce(sum("cashback_amount"::numeric), 0) as "totalBack", max("cycle_tag") as "cashbackCycleTag" from "cashback_movements" group by "cashback_movements"."transaction_id"), "debt_summary" as (select "transaction_id", max("cycle_tag") as "debtCycleTag", max("notes") as "debtNotes", max(trim(concat_ws(' ', initcap(replace("movement_type"::text, '_', ' ')), "cycle_tag"))) as "movementLabel" from "debt_movements" group by "debt_movements"."transaction_id") select count(*), coalesce(sum(("transactions"."amount")::numeric), 0), coalesce(sum(coalesce("totalBack", 0)), 0), coalesce(sum((("transactions"."amount")::numeric) - coalesce("totalBack", 0)), 0) from "transactions" left join "accounts" on "transactions"."account_id" = "accounts"."account_id" left join "people" "account_owner" on  = "account_owner"."person_id" left join "people" on "transactions"."person_id" = "people"."person_id" left join "categories" on "transactions"."category_id" = "categories"."category_id" left join "shops" on "transactions"."shop_id" = "shops"."shop_id" left join "cashback_summary" on "cashback_summary"."transaction_id" = "transactions"."transaction_id" left join "debt_summary" on "debt_summary"."transaction_id" = "transactions"."transaction_id"
+params: 
+    at NodePgPreparedQuery.queryWithCache (file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/pg-core/session.js:41:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:117:22
+    at async getTransactionsTable (webpack-internal:///(api)/./lib/api/transactions/transactions.table.ts:397:30)
+    at async handler (webpack-internal:///(api)/./pages/api/transactions/index.ts:172:30) {
+  query: `with "cashback_summary" as (select "transaction_id", coalesce(max(CASE WHEN "cashback_type" = 'percent' THEN "cashback_value"::numeric END), 0) as "percentBack", coalesce(sum(CASE WHEN "cashback_type" = 'fixed' THEN "cashback_value"::numeric END), 0) as "fixedBack", coalesce(sum("cashback_amount"::numeric), 0) as "totalBack", max("cycle_tag") as "cashbackCycleTag" from "cashback_movements" group by "cashback_movements"."transaction_id"), "debt_summary" as (select "transaction_id", max("cycle_tag") as "debtCycleTag", max("notes") as "debtNotes", max(trim(concat_ws(' ', initcap(replace("movement_type"::text, '_', ' ')), "cycle_tag"))) as "movementLabel" from "debt_movements" group by "debt_movements"."transaction_id") select count(*), coalesce(sum(("transactions"."amount")::numeric), 0), coalesce(sum(coalesce("totalBack", 0)), 0), coalesce(sum((("transactions"."amount")::numeric) - coalesce("totalBack", 0)), 0) from "transactions" left join "accounts" on "transactions"."account_id" = "accounts"."account_id" left join "people" "account_owner" on  = "account_owner"."person_id" left join "people" on "transactions"."person_id" = "people"."person_id" left join "categories" on "transactions"."category_id" = "categories"."category_id" left join "shops" on "transactions"."shop_id" = "shops"."shop_id" left join "cashback_summary" on "cashback_summary"."transaction_id" = "transactions"."transaction_id" left join "debt_summary" on "debt_summary"."transaction_id" = "transactions"."transaction_id"`,
+  params: [],
+  cause: error: syntax error at or near "="
+      at /Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:124:18
+      at async NodePgPreparedQuery.queryWithCache (file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/pg-core/session.js:39:16)
+      at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:117:22
+      at async getTransactionsTable (webpack-internal:///(api)/./lib/api/transactions/transactions.table.ts:397:30)
+      at async handler (webpack-internal:///(api)/./pages/api/transactions/index.ts:172:30) {
+    length: 92,
+    severity: 'ERROR',
+    code: '42601',
+    detail: undefined,
+    hint: undefined,
+    position: '1061',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'scan.l',
+    line: '1244',
+    routine: 'scanner_yyerror'
+  }
+}
+Failed to load transactions from Neon, falling back to mock dataset. DrizzleQueryError: Failed query: select "transactions"."transaction_id", "transactions"."occurred_on", "transactions"."created_at", "transactions"."amount", "transactions"."fee", "transactions"."type", "transactions"."status", "transactions"."notes", "transactions"."account_id", "transactions"."person_id", "transactions"."category_id", "transactions"."shop_id", "transactions"."linked_txn_id", "accounts"."account_name", "account_owner"."full_name", "people"."full_name", "categories"."name", "shops"."shop_name" from "transactions" left join "accounts" on "transactions"."account_id" = "accounts"."account_id" left join "people" "account_owner" on  = "account_owner"."person_id" left join "people" on "transactions"."person_id" = "people"."person_id" left join "categories" on "transactions"."category_id" = "categories"."category_id" left join "shops" on "transactions"."shop_id" = "shops"."shop_id"
+params: 
+    at NodePgPreparedQuery.queryWithCache (file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/pg-core/session.js:41:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:117:22
+    ... 4 lines matching cause stack trace ...
+    at async handler (webpack-internal:///(api)/./pages/api/transactions/index.ts:172:30) {
+  query: 'select "transactions"."transaction_id", "transactions"."occurred_on", "transactions"."created_at", "transactions"."amount", "transactions"."fee", "transactions"."type", "transactions"."status", "transactions"."notes", "transactions"."account_id", "transactions"."person_id", "transactions"."category_id", "transactions"."shop_id", "transactions"."linked_txn_id", "accounts"."account_name", "account_owner"."full_name", "people"."full_name", "categories"."name", "shops"."shop_name" from "transactions" left join "accounts" on "transactions"."account_id" = "accounts"."account_id" left join "people" "account_owner" on  = "account_owner"."person_id" left join "people" on "transactions"."person_id" = "people"."person_id" left join "categories" on "transactions"."category_id" = "categories"."category_id" left join "shops" on "transactions"."shop_id" = "shops"."shop_id"',
+  params: [],
+  cause: error: syntax error at or near "="
+      at /Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:124:18
+      at async NodePgPreparedQuery.queryWithCache (file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/pg-core/session.js:39:16)
+      at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:117:22
+      at async Promise.all (index 0)
+      at async loadTransactionDataset (webpack-internal:///(api)/./lib/api/transactions/transactions.dataset.ts:177:52)
+      at async buildFallbackResponse (webpack-internal:///(api)/./lib/api/transactions/transactions.table.ts:305:21)
+      at async getTransactionsTable (webpack-internal:///(api)/./lib/api/transactions/transactions.table.ts:479:34)
+      at async handler (webpack-internal:///(api)/./pages/api/transactions/index.ts:172:30) {
+    length: 91,
+    severity: 'ERROR',
+    code: '42601',
+    detail: undefined,
+    hint: undefined,
+    position: '620',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'scan.l',
+    line: '1244',
+    routine: 'scanner_yyerror'
+  }
+}
+Failed to query transactions table, falling back to mock dataset. DrizzleQueryError: Failed query: with "cashback_summary" as (select "transaction_id", coalesce(max(CASE WHEN "cashback_type" = 'percent' THEN "cashback_value"::numeric END), 0) as "percentBack", coalesce(sum(CASE WHEN "cashback_type" = 'fixed' THEN "cashback_value"::numeric END), 0) as "fixedBack", coalesce(sum("cashback_amount"::numeric), 0) as "totalBack", max("cycle_tag") as "cashbackCycleTag" from "cashback_movements" group by "cashback_movements"."transaction_id"), "debt_summary" as (select "transaction_id", max("cycle_tag") as "debtCycleTag", max("notes") as "debtNotes", max(trim(concat_ws(' ', initcap(replace("movement_type"::text, '_', ' ')), "cycle_tag"))) as "movementLabel" from "debt_movements" group by "debt_movements"."transaction_id") select count(*), coalesce(sum(("transactions"."amount")::numeric), 0), coalesce(sum(coalesce("totalBack", 0)), 0), coalesce(sum((("transactions"."amount")::numeric) - coalesce("totalBack", 0)), 0) from "transactions" left join "accounts" on "transactions"."account_id" = "accounts"."account_id" left join "people" "account_owner" on  = "account_owner"."person_id" left join "people" on "transactions"."person_id" = "people"."person_id" left join "categories" on "transactions"."category_id" = "categories"."category_id" left join "shops" on "transactions"."shop_id" = "shops"."shop_id" left join "cashback_summary" on "cashback_summary"."transaction_id" = "transactions"."transaction_id" left join "debt_summary" on "debt_summary"."transaction_id" = "transactions"."transaction_id"
+params: 
+    at NodePgPreparedQuery.queryWithCache (file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/pg-core/session.js:41:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:117:22
+    at async getTransactionsTable (webpack-internal:///(api)/./lib/api/transactions/transactions.table.ts:397:30)
+    at async handler (webpack-internal:///(api)/./pages/api/transactions/index.ts:172:30) {
+  query: `with "cashback_summary" as (select "transaction_id", coalesce(max(CASE WHEN "cashback_type" = 'percent' THEN "cashback_value"::numeric END), 0) as "percentBack", coalesce(sum(CASE WHEN "cashback_type" = 'fixed' THEN "cashback_value"::numeric END), 0) as "fixedBack", coalesce(sum("cashback_amount"::numeric), 0) as "totalBack", max("cycle_tag") as "cashbackCycleTag" from "cashback_movements" group by "cashback_movements"."transaction_id"), "debt_summary" as (select "transaction_id", max("cycle_tag") as "debtCycleTag", max("notes") as "debtNotes", max(trim(concat_ws(' ', initcap(replace("movement_type"::text, '_', ' ')), "cycle_tag"))) as "movementLabel" from "debt_movements" group by "debt_movements"."transaction_id") select count(*), coalesce(sum(("transactions"."amount")::numeric), 0), coalesce(sum(coalesce("totalBack", 0)), 0), coalesce(sum((("transactions"."amount")::numeric) - coalesce("totalBack", 0)), 0) from "transactions" left join "accounts" on "transactions"."account_id" = "accounts"."account_id" left join "people" "account_owner" on  = "account_owner"."person_id" left join "people" on "transactions"."person_id" = "people"."person_id" left join "categories" on "transactions"."category_id" = "categories"."category_id" left join "shops" on "transactions"."shop_id" = "shops"."shop_id" left join "cashback_summary" on "cashback_summary"."transaction_id" = "transactions"."transaction_id" left join "debt_summary" on "debt_summary"."transaction_id" = "transactions"."transaction_id"`,
+  params: [],
+  cause: error: syntax error at or near "="
+      at /Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:124:18
+      at async NodePgPreparedQuery.queryWithCache (file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/pg-core/session.js:39:16)
+      at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:117:22
+      at async getTransactionsTable (webpack-internal:///(api)/./lib/api/transactions/transactions.table.ts:397:30)
+      at async handler (webpack-internal:///(api)/./pages/api/transactions/index.ts:172:30) {
+    length: 92,
+    severity: 'ERROR',
+    code: '42601',
+    detail: undefined,
+    hint: undefined,
+    position: '1061',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'scan.l',
+    line: '1244',
+    routine: 'scanner_yyerror'
+  }
+}
+Failed to load transactions from Neon, falling back to mock dataset. DrizzleQueryError: Failed query: select "transactions"."transaction_id", "transactions"."occurred_on", "transactions"."created_at", "transactions"."amount", "transactions"."fee", "transactions"."type", "transactions"."status", "transactions"."notes", "transactions"."account_id", "transactions"."person_id", "transactions"."category_id", "transactions"."shop_id", "transactions"."linked_txn_id", "accounts"."account_name", "account_owner"."full_name", "people"."full_name", "categories"."name", "shops"."shop_name" from "transactions" left join "accounts" on "transactions"."account_id" = "accounts"."account_id" left join "people" "account_owner" on  = "account_owner"."person_id" left join "people" on "transactions"."person_id" = "people"."person_id" left join "categories" on "transactions"."category_id" = "categories"."category_id" left join "shops" on "transactions"."shop_id" = "shops"."shop_id"
+params: 
+    at NodePgPreparedQuery.queryWithCache (file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/pg-core/session.js:41:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:117:22
+    ... 4 lines matching cause stack trace ...
+    at async handler (webpack-internal:///(api)/./pages/api/transactions/index.ts:172:30) {
+  query: 'select "transactions"."transaction_id", "transactions"."occurred_on", "transactions"."created_at", "transactions"."amount", "transactions"."fee", "transactions"."type", "transactions"."status", "transactions"."notes", "transactions"."account_id", "transactions"."person_id", "transactions"."category_id", "transactions"."shop_id", "transactions"."linked_txn_id", "accounts"."account_name", "account_owner"."full_name", "people"."full_name", "categories"."name", "shops"."shop_name" from "transactions" left join "accounts" on "transactions"."account_id" = "accounts"."account_id" left join "people" "account_owner" on  = "account_owner"."person_id" left join "people" on "transactions"."person_id" = "people"."person_id" left join "categories" on "transactions"."category_id" = "categories"."category_id" left join "shops" on "transactions"."shop_id" = "shops"."shop_id"',
+  params: [],
+  cause: error: syntax error at or near "="
+      at /Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:124:18
+      at async NodePgPreparedQuery.queryWithCache (file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/pg-core/session.js:39:16)
+      at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:117:22
+      at async Promise.all (index 0)
+      at async loadTransactionDataset (webpack-internal:///(api)/./lib/api/transactions/transactions.dataset.ts:177:52)
+      at async buildFallbackResponse (webpack-internal:///(api)/./lib/api/transactions/transactions.table.ts:305:21)
+      at async getTransactionsTable (webpack-internal:///(api)/./lib/api/transactions/transactions.table.ts:479:34)
+      at async handler (webpack-internal:///(api)/./pages/api/transactions/index.ts:172:30) {
+    length: 91,
+    severity: 'ERROR',
+    code: '42601',
+    detail: undefined,
+    hint: undefined,
+    position: '620',
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: undefined,
+    table: undefined,
+    column: undefined,
+    dataType: undefined,
+    constraint: undefined,
+    file: 'scan.l',
+    line: '1244',
+    routine: 'scanner_yyerror'
+  }
+}
+ ✓ Compiled /api/debt-ledger in 100ms (84 modules)
+ ✓ Compiled /api/cashback-ledger in 62ms (87 modules)
+Failed to create transaction DrizzleQueryError: Failed query: insert into "transactions" ("transaction_id", "account_id", "person_id", "shop_id", "type", "category_id", "subscription_member_id", "linked_txn_id", "status", "amount", "fee", "occurred_on", "notes", "created_at", "updated_at") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, default, default) returning "transaction_id", "account_id", "person_id", "shop_id", "type", "category_id", "subscription_member_id", "linked_txn_id", "status", "amount", "fee", "occurred_on", "notes", "created_at", "updated_at"
+params: 5275acfc-6612-4577-a14c-d8bab4d00dc3,test-account-1,,,expense,,,,pending,150.75,0.00,Sun Nov 03 2024 07:00:00 GMT+0700 (Indochina Time),Valid transaction test
+    at NodePgPreparedQuery.queryWithCache (file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/pg-core/session.js:41:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:117:22
+    at async handler (webpack-internal:///(api)/./pages/api/transactions/index.ts:229:34) {
+  query: 'insert into "transactions" ("transaction_id", "account_id", "person_id", "shop_id", "type", "category_id", "subscription_member_id", "linked_txn_id", "status", "amount", "fee", "occurred_on", "notes", "created_at", "updated_at") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, default, default) returning "transaction_id", "account_id", "person_id", "shop_id", "type", "category_id", "subscription_member_id", "linked_txn_id", "status", "amount", "fee", "occurred_on", "notes", "created_at", "updated_at"',
+  params: [
+    '5275acfc-6612-4577-a14c-d8bab4d00dc3',
+    'test-account-1',
+    null,
+    null,
+    'expense',
+    null,
+    null,
+    null,
+    'pending',
+    '150.75',
+    '0.00',
+    2024-11-03T00:00:00.000Z,
+    'Valid transaction test'
+  ],
+  cause: error: insert or update on table "transactions" violates foreign key constraint "transactions_account_id_accounts_account_id_fk"
+      at /Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:124:18
+      at async NodePgPreparedQuery.queryWithCache (file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/pg-core/session.js:39:16)
+      at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:117:22
+      at async handler (webpack-internal:///(api)/./pages/api/transactions/index.ts:229:34) {
+    length: 331,
+    severity: 'ERROR',
+    code: '23503',
+    detail: 'Key (account_id)=(test-account-1) is not present in table "accounts".',
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: 'public',
+    table: 'transactions',
+    column: undefined,
+    dataType: undefined,
+    constraint: 'transactions_account_id_accounts_account_id_fk',
+    file: 'ri_triggers.c',
+    line: '2599',
+    routine: 'ri_ReportViolation'
+  }
+}
+Failed to create transaction DrizzleQueryError: Failed query: insert into "transactions" ("transaction_id", "account_id", "person_id", "shop_id", "type", "category_id", "subscription_member_id", "linked_txn_id", "status", "amount", "fee", "occurred_on", "notes", "created_at", "updated_at") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, default, default) returning "transaction_id", "account_id", "person_id", "shop_id", "type", "category_id", "subscription_member_id", "linked_txn_id", "status", "amount", "fee", "occurred_on", "notes", "created_at", "updated_at"
+params: 9d18a24b-0352-4c33-9908-e6eca690db19,test-account-1,,,expense,,,,pending,0.00,0.00,Sun Nov 03 2024 07:00:00 GMT+0700 (Indochina Time),Zero amount test
+    at NodePgPreparedQuery.queryWithCache (file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/pg-core/session.js:41:15)
+    at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+    at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:117:22
+    at async handler (webpack-internal:///(api)/./pages/api/transactions/index.ts:229:34) {
+  query: 'insert into "transactions" ("transaction_id", "account_id", "person_id", "shop_id", "type", "category_id", "subscription_member_id", "linked_txn_id", "status", "amount", "fee", "occurred_on", "notes", "created_at", "updated_at") values ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13, default, default) returning "transaction_id", "account_id", "person_id", "shop_id", "type", "category_id", "subscription_member_id", "linked_txn_id", "status", "amount", "fee", "occurred_on", "notes", "created_at", "updated_at"',
+  params: [
+    '9d18a24b-0352-4c33-9908-e6eca690db19',
+    'test-account-1',
+    null,
+    null,
+    'expense',
+    null,
+    null,
+    null,
+    'pending',
+    '0.00',
+    '0.00',
+    2024-11-03T00:00:00.000Z,
+    'Zero amount test'
+  ],
+  cause: error: insert or update on table "transactions" violates foreign key constraint "transactions_account_id_accounts_account_id_fk"
+      at /Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/pg-pool@3.10.1_pg@8.16.3/node_modules/pg-pool/index.js:45:11
+      at process.processTicksAndRejections (node:internal/process/task_queues:95:5)
+      at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:124:18
+      at async NodePgPreparedQuery.queryWithCache (file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/pg-core/session.js:39:16)
+      at async file:///Users/namnguyen/Documents/Project/money-obsidian/node_modules/.pnpm/drizzle-orm@0.44.7_@neondatabase+serverless@0.10.4_@types+pg@8.15.6_pg@8.16.3/node_modules/drizzle-orm/node-postgres/session.js:117:22
+      at async handler (webpack-internal:///(api)/./pages/api/transactions/index.ts:229:34) {
+    length: 331,
+    severity: 'ERROR',
+    code: '23503',
+    detail: 'Key (account_id)=(test-account-1) is not present in table "accounts".',
+    hint: undefined,
+    position: undefined,
+    internalPosition: undefined,
+    internalQuery: undefined,
+    where: undefined,
+    schema: 'public',
+    table: 'transactions',
+    column: undefined,
+    dataType: undefined,
+    constraint: 'transactions_account_id_accounts_account_id_fk',
+    file: 'ri_triggers.c',
+    line: '2599',
+    routine: 'ri_ReportViolation'
+  }
+}
