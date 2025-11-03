@@ -1,0 +1,765 @@
+openapi: 3.1.0
+info:
+  title: Money Obsidian Ledger API
+  version: 1.0.0
+  description: API for managing financial transactions, debt, and cashback ledgers.
+servers:
+  - url: http://localhost:3000/api
+    description: Local Development Server
+tags:
+  - name: Transactions
+    description: Operations related to financial transactions
+  - name: Debt Ledger
+    description: Operations related to debt tracking
+  - name: Cashback Ledger
+    description: Operations related to cashback rewards
+paths:
+  /transactions:
+    get:
+      summary: Get a list of transactions
+      tags:
+        - Transactions
+      parameters:
+        - in: query
+          name: search
+          schema:
+            type: string
+          description: Search term for transactions
+        - in: query
+          name: page
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+          description: Page number for pagination
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+          description: Number of items per page
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+          description: Column to sort by
+        - in: query
+          name: sortDir
+          schema:
+            type: string
+            enum: [asc, desc]
+          description: Sort direction
+      responses:
+        '200':
+          description: A list of transactions
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  transactions:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Transaction'
+                  totalCount:
+                    type: integer
+                  page:
+                    type: integer
+                  pageSize:
+                    type: integer
+                  totalPages:
+                    type: integer
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new transaction
+      tags:
+        - Transactions
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewTransaction'
+            examples:
+              newExpense:
+                summary: Example of a new expense transaction
+                value:
+                  occurredOn: "2024-11-03"
+                  amount: 50.75
+                  type: "expense"
+                  status: "active"
+                  accountId: "test-account-1"
+                  notes: "Lunch with colleagues"
+              newDebt:
+                summary: Example of a new debt transaction
+                value:
+                  occurredOn: "2024-11-03"
+                  amount: 200.00
+                  type: "debt"
+                  status: "active"
+                  accountId: "test-account-1"
+                  personId: "test-person-1"
+                  debtMovement:
+                    movementType: "borrow"
+                    cycleTag: "2024-11"
+                  notes: "Borrowed money for a trip"
+              newCashback:
+                summary: Example of a new cashback transaction
+                value:
+                  occurredOn: "2024-11-03"
+                  amount: 100.00
+                  type: "cashback"
+                  status: "active"
+                  accountId: "test-account-1"
+                  cashbackMovement:
+                    cashbackType: "percent"
+                    cashbackValue: "5.00"
+                    cycleTag: "2024-11"
+                  notes: "Cashback from online purchase"
+      responses:
+        '201':
+          description: Transaction created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Transaction'
+        '400':
+          description: Invalid input or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /transactions/{id}:
+    delete:
+      summary: Delete a transaction and rollback associated ledger movements
+      tags:
+        - Transactions
+      parameters:
+        - in: path
+          name: id
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The ID of the transaction to delete
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                personId:
+                  type: string
+                  format: uuid
+                  description: Required if the transaction involved a debt movement.
+                debtMovement:
+                  type: object
+                  properties:
+                    cycleTag:
+                      type: string
+                      description: Cycle tag for debt movement rollback.
+                accountId:
+                  type: string
+                  format: uuid
+                  description: Required if the transaction involved a cashback movement.
+                cashbackMovement:
+                  type: object
+                  properties:
+                    cycleTag:
+                      type: string
+                      description: Cycle tag for cashback movement rollback.
+              required:
+                - personId
+                - debtMovement
+                - accountId
+                - cashbackMovement
+            examples:
+              deleteDebtCashbackTxn:
+                summary: Example of deleting a transaction with debt and cashback
+                value:
+                  personId: "test-person-1"
+                  debtMovement:
+                    cycleTag: "2024-11"
+                  accountId: "test-account-1"
+                  cashbackMovement:
+                    cycleTag: "2024-11"
+      responses:
+        '200':
+          description: Transaction deleted and ledgers rolled back successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  transactionId:
+                    type: string
+        '400':
+          description: Invalid input or missing required fields for rollback
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '404':
+          description: Transaction not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /debt-ledger:
+    get:
+      summary: Get a list of debt ledgers
+      tags:
+        - Debt Ledger
+      responses:
+        '200':
+          description: A list of debt ledgers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/DebtLedger'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new debt ledger entry
+      tags:
+        - Debt Ledger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewDebtLedger'
+            examples:
+              newDebtLedger:
+                summary: Example of a new debt ledger entry
+                value:
+                  personId: "test-person-1"
+                  cycleTag: "2024-11"
+                  initialDebt: "0.00"
+                  newDebt: "500.00"
+                  repayments: "0.00"
+                  debtDiscount: "0.00"
+                  netDebt: "500.00"
+                  status: "open"
+      responses:
+        '201':
+          description: Debt ledger entry created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebtLedger'
+        '400':
+          description: Invalid input or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /debt-ledger/{personId}:
+    get:
+      summary: Get debt balance for a person
+      tags:
+        - Debt Ledger
+      parameters:
+        - in: path
+          name: personId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The ID of the person
+        - in: query
+          name: cycleTag
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          description: Optional cycle tag (YYYY-MM)
+      responses:
+        '200':
+          description: Current debt balance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance:
+                    type: number
+                    format: float
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /cashback-ledger:
+    get:
+      summary: Get a list of cashback ledgers
+      tags:
+        - Cashback Ledger
+      responses:
+        '200':
+          description: A list of cashback ledgers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/CashbackLedger'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+    post:
+      summary: Create a new cashback ledger entry
+      tags:
+        - Cashback Ledger
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/NewCashbackLedger'
+            examples:
+              newCashbackLedger:
+                summary: Example of a new cashback ledger entry
+                value:
+                  accountId: "test-account-1"
+                  cycleTag: "2024-11"
+                  totalSpend: "0.00"
+                  totalCashback: "25.50"
+                  budgetCap: "0.00"
+                  eligibility: "pending"
+                  remainingBudget: "25.50"
+                  status: "open"
+      responses:
+        '201':
+          description: Cashback ledger entry created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CashbackLedger'
+        '400':
+          description: Invalid input or missing required fields
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /cashback-ledger/{accountId}:
+    get:
+      summary: Get cashback balance for an account
+      tags:
+        - Cashback Ledger
+      parameters:
+        - in: path
+          name: accountId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: The ID of the account
+        - in: query
+          name: cycleTag
+          schema:
+            type: string
+            pattern: '^\d{4}-\d{2}$'
+          required: true
+          description: Cycle tag (YYYY-MM)
+      responses:
+        '200':
+          description: Current cashback balance
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  balance:
+                    type: number
+                    format: float
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+components:
+  schemas:
+    Transaction:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          format: uuid
+          description: Primary key for the transaction.
+        accountId:
+          type: string
+          format: uuid
+          description: Foreign key to the account that owns the transaction.
+        personId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Optional link to the person related to the transaction.
+        shopId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Optional reference to the merchant or shop.
+        type:
+          type: string
+          enum: [expense, income, debt, repayment, cashback, subscription, import, adjustment]
+          description: Business classification of the transaction.
+        categoryId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Optional category for budgeting and reporting.
+        subscriptionMemberId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Associates subscription payment transactions with the member record.
+        linkedTxnId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Optional pointer to a Linked Transaction group.
+        status:
+          type: string
+          enum: [active, pending, void, canceled]
+          description: Lifecycle state controlling whether the transaction impacts balances.
+        amount:
+          type: number
+          format: float
+          description: Total amount of the transaction.
+        fee:
+          type: number
+          format: float
+          nullable: true
+          description: Optional processing or platform fee.
+        occurredOn:
+          type: string
+          format: date
+          description: Date the transaction occurred.
+        notes:
+          type: string
+          nullable: true
+          description: Free-form notes.
+        createdAt:
+          type: string
+          format: date-time
+          description: Record creation timestamp.
+        updatedAt:
+          type: string
+          format: date-time
+          description: Timestamp of the most recent update.
+      required:
+        - transactionId
+        - accountId
+        - type
+        - status
+        - amount
+        - occurredOn
+    NewTransaction:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+          description: Foreign key to the account that owns the transaction.
+        personId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Optional link to the person related to the transaction.
+        shopId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Optional reference to the merchant or shop.
+        type:
+          type: string
+          enum: [expense, income, debt, repayment, cashback, subscription, import, adjustment]
+          description: Business classification of the transaction.
+        categoryId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Optional category for budgeting and reporting.
+        subscriptionMemberId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Associates subscription payment transactions with the member record.
+        linkedTxnId:
+          type: string
+          format: uuid
+          nullable: true
+          description: Optional pointer to a Linked Transaction group.
+        status:
+          type: string
+          enum: [active, pending, void, canceled]
+          description: Lifecycle state controlling whether the transaction impacts balances.
+        amount:
+          type: number
+          format: float
+          description: Total amount of the transaction.
+        fee:
+          type: number
+          format: float
+          nullable: true
+          description: Optional processing or platform fee.
+        occurredOn:
+          type: string
+          format: date
+          description: Date the transaction occurred.
+        notes:
+          type: string
+          nullable: true
+          description: Free-form notes.
+        debtMovement:
+          type: object
+          properties:
+            movementType:
+              type: string
+              enum: [borrow, repay, adjust, discount, split]
+            cycleTag:
+              type: string
+              pattern: '^\d{4}-\d{2}$'
+          description: Details for debt ledger movement if applicable.
+        cashbackMovement:
+          type: object
+          properties:
+            cashbackType:
+              type: string
+              enum: [percent, fixed]
+            cashbackValue:
+              type: string
+            cycleTag:
+              type: string
+              pattern: '^\d{4}-\d{2}$'
+          description: Details for cashback ledger movement if applicable.
+      required:
+        - accountId
+        - type
+        - status
+        - amount
+        - occurredOn
+    DebtLedger:
+      type: object
+      properties:
+        debtLedgerId:
+          type: string
+          format: uuid
+        personId:
+          type: string
+          format: uuid
+        cycleTag:
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+          nullable: true
+        initialDebt:
+          type: string
+          format: decimal
+        newDebt:
+          type: string
+          format: decimal
+        repayments:
+          type: string
+          format: decimal
+        debtDiscount:
+          type: string
+          format: decimal
+        netDebt:
+          type: string
+          format: decimal
+        status:
+          type: string
+          enum: [open, partial, repaid, overdue]
+        lastUpdated:
+          type: string
+          format: date-time
+        notes:
+          type: string
+          nullable: true
+      required:
+        - debtLedgerId
+        - personId
+        - initialDebt
+        - newDebt
+        - repayments
+        - netDebt
+        - status
+        - lastUpdated
+    NewDebtLedger:
+      type: object
+      properties:
+        personId:
+          type: string
+          format: uuid
+        cycleTag:
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+          nullable: true
+        initialDebt:
+          type: string
+          format: decimal
+          default: "0.00"
+        newDebt:
+          type: string
+          format: decimal
+          default: "0.00"
+        repayments:
+          type: string
+          format: decimal
+          default: "0.00"
+        debtDiscount:
+          type: string
+          format: decimal
+          default: "0.00"
+        netDebt:
+          type: string
+          format: decimal
+          default: "0.00"
+        status:
+          type: string
+          enum: [open, partial, repaid, overdue]
+          default: "open"
+        notes:
+          type: string
+          nullable: true
+      required:
+        - personId
+    CashbackLedger:
+      type: object
+      properties:
+        cashbackLedgerId:
+          type: string
+          format: uuid
+        accountId:
+          type: string
+          format: uuid
+        cycleTag:
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+        totalSpend:
+          type: string
+          format: decimal
+        totalCashback:
+          type: string
+          format: decimal
+        budgetCap:
+          type: string
+          format: decimal
+        eligibility:
+          type: string
+          enum: [eligible, not_eligible, reached_cap, pending]
+        remainingBudget:
+          type: string
+          format: decimal
+        status:
+          type: string
+          enum: [open, closed]
+        notes:
+          type: string
+          nullable: true
+        lastUpdated:
+          type: string
+          format: date-time
+      required:
+        - cashbackLedgerId
+        - accountId
+        - cycleTag
+        - totalSpend
+        - totalCashback
+        - budgetCap
+        - eligibility
+        - remainingBudget
+        - status
+        - lastUpdated
+    NewCashbackLedger:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        cycleTag:
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+        totalSpend:
+          type: string
+          format: decimal
+          default: "0.00"
+        totalCashback:
+          type: string
+          format: decimal
+          default: "0.00"
+        budgetCap:
+          type: string
+          format: decimal
+          default: "0.00"
+        eligibility:
+          type: string
+          enum: [eligible, not_eligible, reached_cap, pending]
+          default: "pending"
+        remainingBudget:
+          type: string
+          format: decimal
+          default: "0.00"
+        status:
+          type: string
+          enum: [open, closed]
+          default: "open"
+        notes:
+          type: string
+          nullable: true
+      required:
+        - accountId
+        - cycleTag
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+        details:
+          type: string
+          nullable: true

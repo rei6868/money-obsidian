@@ -55,6 +55,12 @@ const MOCK_TRANSACTIONS: any[] = [
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const database = db;
 
+  // Basic authentication check
+  const authToken = req.headers['authorization'];
+  if (!authToken || authToken !== `Bearer ${process.env.API_SECRET_KEY}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   if (!database) {
     console.warn("Database connection is not configured - using mock data");
 
@@ -205,7 +211,13 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const amount = parseFloat(body.amount);
       const fee = body.fee ? parseFloat(body.fee) : 0;
-      if (isNaN(amount)) return res.status(400).json({ error: "amount must be a valid number" });
+      if (isNaN(amount) || amount <= 0) return res.status(400).json({ error: "amount must be a positive number" });
+      if (isNaN(fee) || fee < 0) return res.status(400).json({ error: "fee must be a non-negative number" });
+
+      // Validate occurredOn date
+      const occurredOnDate = new Date(body.occurredOn);
+      if (isNaN(occurredOnDate.getTime())) return res.status(400).json({ error: "occurredOn must be a valid date" });
+      if (occurredOnDate > new Date()) return res.status(400).json({ error: "occurredOn cannot be in the future" });
 
       // Validate foreign keys
       const accountExists = await database.select().from(accounts).where(eq(accounts.accountId, body.accountId)).limit(1);

@@ -271,6 +271,12 @@ function resolveActionType(
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const database = db;
 
+  // Basic authentication check
+  const authToken = req.headers['authorization'];
+  if (!authToken || authToken !== `Bearer ${process.env.API_SECRET_KEY}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
+
   if (!database) {
     console.error("Database connection is not configured");
     res.status(500).json({ error: "Database connection is not configured" });

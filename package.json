@@ -13,8 +13,10 @@
   },
   "dependencies": {
     "@neondatabase/serverless": "^0.10.4",
+    "dayjs": "^1.11.19",
     "dotenv": "^16.6.1",
     "drizzle-orm": "^0.44.6",
+    "exceljs": "^4.4.0",
     "mathjs": "^15.0.0",
     "next": "^13.4.0",
     "pg": "^8.16.3",
