@@ -256,3 +256,4 @@ params: 9d18a24b-0352-4c33-9908-e6eca690db19,test-account-1,,,expense,,,,pending
     routine: 'ri_ReportViolation'
   }
 }
+ ✓ Compiled in 429ms (43 modules)
