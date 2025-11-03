@@ -23,7 +23,7 @@ export default async function handler(
         transactionsToImport = payload;
       } else if (type === 'csv') {
         // Basic CSV parsing - in a real scenario, use a robust CSV parser library
-        const lines = payload.split('\n').filter(line => line.trim() !== '');
+        const lines = payload.split('\n').filter((line: string) => line.trim() !== '');
         if (lines.length === 0) {
           return res.status(400).json({ status: 'error', message: 'Empty CSV payload.' });
         }
