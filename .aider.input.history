@@ -1,0 +1,23 @@
+
+# 2025-11-03 15:00:07.366016
++y
+
+# 2025-11-03 15:00:19.715770
++PX-P1-ledger-api-test:
++
++Test Transaction Engine & Ledger APIs for money-obsidian backend.
++
++Tasks:
++1. Test CRUD on transactions, debt_ledger, debt_movements, cashback_ledger, cashback_movements.
++2. For each API, create, update, delete, and verify DB reflects changes.
++3. Test edge/boundary cases: missing fields, negative balance, overpay debt, rollback transaction.
++4. Audit cross-boundary event: one transaction triggers multiple movement/ledger update.
++5. Document all API payload and expected outcome/result in markdown report.
++6. For any error or validation case, record input, response, and suggest fix as note.
++
++Branch: PX-P1-ledger-api-test
++
+
+# 2025-11-03 15:10:09.381325
++aider --model deepseek-coder --api-key deepseek=sk-875c91df7cc74a7d886151cb5abf52a5
++
