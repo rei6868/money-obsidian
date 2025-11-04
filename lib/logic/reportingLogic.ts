@@ -221,7 +221,8 @@ export async function getMovementHistory(
     movements: movements.map(m => ({
       ...m,
       amount: parseFloat(m.amount || '0'),
-      occurredOn: m.occurredOn?.toISOString().split('T')[0] || ''
+      occurredOn: m.occurredOn?.toISOString().split('T')[0] || '',
+      categoryName: m.categoryName || undefined, // Ensure categoryName is string | undefined
     })),
     totalCount: totalCount as number
   };
@@ -357,7 +358,7 @@ export async function getForecasts(
 
   // Cashback forecast
   const cashbackQuery = db
-    .select({ totalBalance: sum(cashbackLedger.balance) })
+    .select({ totalBalance: sum(cashbackLedger.cashbackBalance) })
     .from(cashbackLedger);
 
   const [{ totalBalance }] = await cashbackQuery;
