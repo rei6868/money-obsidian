@@ -358,7 +358,7 @@ export async function getForecasts(
 
   // Cashback forecast
   const cashbackQuery = db
-    .select({ totalBalance: sum(cashbackLedger.cashbackBalance) })
+    .select({ totalBalance: sum(cashbackLedger.totalCashback) })
     .from(cashbackLedger);
 
   const [{ totalBalance }] = await cashbackQuery;
