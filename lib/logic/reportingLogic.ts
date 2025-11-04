@@ -79,7 +79,7 @@ export async function getAccountBalances(
       currentBalance: accounts.currentBalance,
       totalIn: accounts.totalIn,
       totalOut: accounts.totalOut,
-      period: sql<string>`CONCAT(${startDate ? sql`${startDate}::date` : sql`'all-time'`}, ' to ', ${endDate ? sql`${endDate}::date` : sql`'present'})`
+      period: sql<string>`CONCAT(${startDate ? sql`${startDate}::date` : sql`'all-time'`}, ' to ', ${endDate ? sql`${endDate}::date` : sql`'present'`})`
     })
     .from(accounts)
     .where(whereConditions.length > 0 ? and(...whereConditions) : undefined)
