@@ -46,3 +46,16 @@ TASK: Project Dragon - P2-S4: Business Automation & Scheduled Backend Jobs
 - Checklist for admin/operator to test jobs before/after deployment.
 
 **Branch:** `feat/P2-S4-business-automation`
+
+Please perform the following steps to resolve conflicts:
+
+1. Fetch and pull the relevant branches down to your local environment.
+2. Run `git checkout` to switch to the feature branch associated with this PR.
+3. Run `git merge main` (or the target base branch) to start resolving the conflicts locally.
+4. Use your code editor to carefully resolve each conflict, ensuring code consistency, correctness, and project structure integrity.
+5. Run all relevant tests and build checks locally to ensure nothing is broken after the conflicts are resolved.
+6. Commit all resolved conflicts with a clear message, e.g., `fix: resolve merge conflicts with main for PR #12`.
+7. Push the updated branch to the remote repository, updating the pull request.
+8. Re-run CI/CD to ensure successful integration.
+
+You must resolve all conflicts manually and verify local integrity before pushing.
