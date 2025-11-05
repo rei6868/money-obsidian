@@ -15,6 +15,8 @@ tags:
     description: Operations related to cashback rewards
   - name: Reporting
     description: Operations related to financial reporting and analytics
+  - name: Automation
+    description: Operations related to business process automation and scheduled jobs
 paths:
   /transactions:
     get:
@@ -1012,6 +1014,51 @@ paths:
                 $ref: '#/components/schemas/Error'
         '500':
           description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /automation/run-job:
+    post:
+      summary: Manually trigger a job
+      tags:
+        - Automation
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jobName:
+                  type: string
+                  enum: [reconcile-balances, generate-reports, audit-ledgers]
+                  description: The name of the job to run
+              required:
+                - jobName
+            examples:
+              runReconciliation:
+                summary: Example of running the balance reconciliation job
+                value:
+                  jobName: "reconcile-balances"
+      responses:
+        '200':
+          description: Job executed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+        '400':
+          description: Invalid job name
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Job failed to execute
           content:
             application/json:
               schema:
