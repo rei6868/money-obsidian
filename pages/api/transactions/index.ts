@@ -7,10 +7,10 @@ import {
 } from "../../../lib/api/transactions/transactions.types";
 import { db } from "../../../lib/db/client";
 import { transactions, transactionTypeEnum, transactionStatusEnum, type NewTransaction } from "../../../src/db/schema/transactions";
-import { debtMovements, debtMovementTypeEnum, debtMovementStatusEnum, type NewDebtMovement } from "../../../src/db/schema/debtMovements";
-import { debtLedger, debtLedgerStatusEnum, type NewDebtLedger } from "../../../src/db/schema/debtLedger";
 import { accounts } from "../../../src/db/schema/accounts";
-import { eq, and, isNull } from "drizzle-orm";
+import { people } from "../../../src/db/schema/people";
+import { updateLedgersOnTransaction } from "../../../lib/logic/crossLedgerLogic";
+import { eq } from "drizzle-orm";
 
 // Mock data for development when database is not configured
 const MOCK_TRANSACTIONS: any[] = [
@@ -54,6 +54,12 @@ const MOCK_TRANSACTIONS: any[] = [
 
 export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   const database = db;
+
+  // Basic authentication check
+  const authToken = req.headers['authorization'];
+  if (!authToken || authToken !== `Bearer ${process.env.API_SECRET_KEY}`) {
+    return res.status(401).json({ error: 'Unauthorized' });
+  }
 
   if (!database) {
     console.warn("Database connection is not configured - using mock data");
@@ -205,7 +211,26 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
 
       const amount = parseFloat(body.amount);
       const fee = body.fee ? parseFloat(body.fee) : 0;
-      if (isNaN(amount)) return res.status(400).json({ error: "amount must be a valid number" });
+      if (isNaN(amount) || amount <= 0) return res.status(400).json({ error: "amount must be a positive number" });
+      if (isNaN(fee) || fee < 0) return res.status(400).json({ error: "fee must be a non-negative number" });
+
+      // Validate occurredOn date
+      const occurredOnDate = new Date(body.occurredOn);
+      if (isNaN(occurredOnDate.getTime())) return res.status(400).json({ error: "occurredOn must be a valid date" });
+      if (occurredOnDate > new Date()) return res.status(400).json({ error: "occurredOn cannot be in the future" });
+
+      // Validate foreign keys
+      const accountExists = await database.select().from(accounts).where(eq(accounts.accountId, body.accountId)).limit(1);
+      if (accountExists.length === 0) {
+        return res.status(400).json({ error: "Invalid accountId", details: `Account with ID ${body.accountId} does not exist.` });
+      }
+
+      if (body.personId) {
+        const personExists = await database.select().from(people).where(eq(people.personId, body.personId)).limit(1);
+        if (personExists.length === 0) {
+          return res.status(400).json({ error: "Invalid personId", details: `Person with ID ${body.personId} does not exist.` });
+        }
+      }
 
       // Create Transaction
       const transactionId = randomUUID();
@@ -226,94 +251,8 @@ export default async function handler(req: NextApiRequest, res: NextApiResponse)
       };
       const [createdTxn] = await database.insert(transactions).values(transactionPayload).returning();
 
-      // Debt logic
-      if (body.personId && body.debtMovement) {
-        const { movementType, cycleTag } = body.debtMovement;
-        const allowedMovementTypes = debtMovementTypeEnum.enumValues as readonly string[];
-        if (!allowedMovementTypes.includes(movementType))
-          return res.status(400).json({ error: "Invalid movementType", details: allowedMovementTypes });
-        
-        // Ledger: one ledger per person+cycle.
-        // Corrected Drizzle query: Use and() to combine WHERE clauses and isNull() for null checks.
-        const [ledger] = await database
-          .select()
-          .from(debtLedger)
-          .where(
-            and(
-              eq(debtLedger.personId, body.personId),
-              cycleTag ? eq(debtLedger.cycleTag, cycleTag) : isNull(debtLedger.cycleTag)
-            )
-          );
-        
-        let debtLedgerId: string;
-        let ledgerStatus: typeof debtLedgerStatusEnum.enumValues[number] = "open";
-        let newDebt = 0, repayments = 0, netDebt = 0, initialDebt = 0, debtDiscount = 0;
-
-        // Create or update ledger
-        if (!ledger) {
-          debtLedgerId = randomUUID();
-          if (movementType === "borrow") newDebt = amount;
-          if (movementType === "repay") repayments = amount; // repay = trả nợ
-          netDebt = newDebt - repayments;
-          const newLedger: NewDebtLedger = {
-            debtLedgerId,
-            personId: body.personId,
-            cycleTag: cycleTag || null,
-            initialDebt: "0",
-            newDebt: newDebt.toFixed(2),
-            repayments: repayments.toFixed(2),
-            debtDiscount: "0",
-            netDebt: netDebt.toFixed(2),
-            status: ledgerStatus,
-            lastUpdated: new Date(),
-            notes: body.notes || null,
-          };
-          await database.insert(debtLedger).values(newLedger);
-        } else {
-          debtLedgerId = ledger.debtLedgerId;
-          initialDebt = parseFloat(ledger.initialDebt ?? "0");
-          newDebt = parseFloat(ledger.newDebt ?? "0");
-          repayments = parseFloat(ledger.repayments ?? "0");
-          debtDiscount = parseFloat(ledger.debtDiscount ?? "0");
-          // Update values
-          if (movementType === "borrow") newDebt += amount;
-          if (movementType === "repay") repayments += amount;
-          // Sửa: Allow adjust/discount
-          if (movementType === "discount") debtDiscount += amount;
-          // netDebt
-          netDebt = initialDebt + newDebt - repayments - debtDiscount;
-
-          await database.update(debtLedger).set({
-            newDebt: newDebt.toFixed(2),
-            repayments: repayments.toFixed(2),
-            debtDiscount: debtDiscount.toFixed(2),
-            netDebt: netDebt.toFixed(2),
-            lastUpdated: new Date(),
-            status: ledgerStatus,
-            notes: body.notes || ledger.notes || null
-          }).where(eq(debtLedger.debtLedgerId, debtLedgerId));
-        }
-
-        // Create debt movement
-        const movementStatus: typeof debtMovementStatusEnum.enumValues[number] = "active";
-        const newDebtMovement: NewDebtMovement = {
-          debtMovementId: randomUUID(),
-          transactionId,
-          personId: body.personId,
-          accountId: body.accountId,
-          movementType,
-          amount: amount.toFixed(2),
-          cycleTag: cycleTag || null,
-          status: movementStatus,
-          notes: body.notes || null,
-          createdAt: new Date(),
-          updatedAt: new Date(),
-        };
-        await database.insert(debtMovements).values(newDebtMovement);
-      }
-
-      // Update accounts (simple logic, outscoped for brevity)
-      // TODO: You can re-add account balance update logic here if needed
+      // Update ledgers
+      await updateLedgersOnTransaction(createdTxn, body);
 
       res.status(201).json(createdTxn);
     } catch (error) {
