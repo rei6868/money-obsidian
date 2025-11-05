@@ -1,0 +1,10 @@
+{
+  "id": "money-obsidian-plugin",
+  "name": "Money Obsidian Plugin",
+  "version": "1.0.0",
+  "minAppVersion": "0.15.0",
+  "description": "A plugin to integrate Money Obsidian with backend APIs.",
+  "author": "Gemini",
+  "authorUrl": "",
+  "is-mobile-ready": true
+}
