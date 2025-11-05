@@ -651,7 +651,7 @@ paths:
                 $ref: '#/components/schemas/Error'
   /reports/account-summary:
     get:
-      summary: Get account summaries
+      summary: Get account summaries with opening/closing balance per period
       tags:
         - Reporting
       parameters:
@@ -659,19 +659,51 @@ paths:
           name: accountId
           schema:
             type: string
-          description: Optional account ID to filter by
+            format: uuid
+          required: true
+          description: Account ID to get summary for
         - in: query
           name: fromDate
           schema:
             type: string
             format: date
-          description: Optional start date for the reporting period
+          description: Optional start date for the reporting period (ISO 8601 date)
         - in: query
           name: toDate
           schema:
             type: string
             format: date
-          description: Optional end date for the reporting period
+          description: Optional end date for the reporting period (ISO 8601 date)
+        - in: query
+          name: page
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: [occurredOn, amount, type]
+          description: Field to sort by
+        - in: query
+          name: sortDir
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort direction
       responses:
         '200':
           description: Account summary report
@@ -679,6 +711,18 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/AccountSummary'
+        '400':
+          description: Invalid input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
         '500':
           description: Internal server error
           content:
