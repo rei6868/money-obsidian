@@ -13,6 +13,8 @@ tags:
     description: Operations related to debt tracking
   - name: Cashback Ledger
     description: Operations related to cashback rewards
+  - name: Reporting
+    description: Operations related to financial reporting and analytics
 paths:
   /transactions:
     get:
@@ -421,6 +423,232 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /reports/account-balance:
+    get:
+      summary: Get account balance summaries
+      tags:
+        - Reporting
+      parameters:
+        - in: query
+          name: accountId
+          schema:
+            type: string
+            format: uuid
+          description: Optional account ID to filter by specific account
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum: [monthly, yearly, last-month, last-year]
+          description: Time period filter (default: all time)
+      responses:
+        '200':
+          description: Account balance summaries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/AccountBalanceSummary'
+                  filters:
+                    type: object
+                    properties:
+                      accountId:
+                        type: string
+                      period:
+                        type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /reports/category-summary:
+    get:
+      summary: Get category spending summaries
+      tags:
+        - Reporting
+      parameters:
+        - in: query
+          name: categoryId
+          schema:
+            type: string
+            format: uuid
+          description: Optional category ID to filter by specific category
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum: [monthly, yearly, last-month, last-year]
+          description: Time period filter (default: all time)
+      responses:
+        '200':
+          description: Category summaries
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/CategorySummary'
+                  filters:
+                    type: object
+                    properties:
+                      categoryId:
+                        type: string
+                      period:
+                        type: string
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /reports/movement-history:
+    get:
+      summary: Get transaction movement history with pagination
+      tags:
+        - Reporting
+      parameters:
+        - in: query
+          name: accountId
+          schema:
+            type: string
+            format: uuid
+          description: Optional account ID filter
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [expense, income, debt, repayment, cashback, subscription, import, adjustment]
+          description: Optional transaction type filter
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum: [monthly, yearly, last-month, last-year]
+          description: Time period filter (default: all time)
+        - in: query
+          name: page
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+      responses:
+        '200':
+          description: Movement history with pagination
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  data:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/MovementHistoryItem'
+                  pagination:
+                    $ref: '#/components/schemas/Pagination'
+                  filters:
+                    type: object
+                    properties:
+                      accountId:
+                        type: string
+                      type:
+                        type: string
+                      period:
+                        type: string
+                      page:
+                        type: integer
+                      pageSize:
+                        type: integer
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /reports/analytics:
+    get:
+      summary: Get analytics data (top expenses, trends, forecasts)
+      tags:
+        - Reporting
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [top-expenses, recurring-trends, forecasts]
+          required: true
+          description: Type of analytics to retrieve
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 50
+            default: 10
+          description: Limit for top-expenses analytics
+        - in: query
+          name: period
+          schema:
+            type: string
+            enum: [monthly, yearly, last-month, last-year]
+          description: Time period filter for applicable analytics types
+      responses:
+        '200':
+          description: Analytics data
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  type:
+                    type: string
+                  data:
+                    oneOf:
+                      - type: array
+                        items:
+                          $ref: '#/components/schemas/TopExpense'
+                      - type: array
+                        items:
+                          $ref: '#/components/schemas/RecurringTrend'
+                      - $ref: '#/components/schemas/ForecastData'
+                  filters:
+                    type: object
+                    properties:
+                      limit:
+                        type: integer
+                      period:
+                        type: string
+        '400':
+          description: Invalid analytics type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
   schemas:
     Transaction:
@@ -599,19 +827,14 @@ components:
           nullable: true
         initialDebt:
           type: string
-          format: decimal
         newDebt:
           type: string
-          format: decimal
         repayments:
           type: string
-          format: decimal
         debtDiscount:
           type: string
-          format: decimal
         netDebt:
           type: string
-          format: decimal
         status:
           type: string
           enum: [open, partial, repaid, overdue]
@@ -642,23 +865,18 @@ components:
           nullable: true
         initialDebt:
           type: string
-          format: decimal
           default: "0.00"
         newDebt:
           type: string
-          format: decimal
           default: "0.00"
         repayments:
           type: string
-          format: decimal
           default: "0.00"
         debtDiscount:
           type: string
-          format: decimal
           default: "0.00"
         netDebt:
           type: string
-          format: decimal
           default: "0.00"
         status:
           type: string
@@ -683,19 +901,15 @@ components:
           pattern: '^\d{4}-\d{2}$'
         totalSpend:
           type: string
-          format: decimal
         totalCashback:
           type: string
-          format: decimal
         budgetCap:
           type: string
-          format: decimal
         eligibility:
           type: string
           enum: [eligible, not_eligible, reached_cap, pending]
         remainingBudget:
           type: string
-          format: decimal
         status:
           type: string
           enum: [open, closed]
@@ -727,15 +941,12 @@ components:
           pattern: '^\d{4}-\d{2}$'
         totalSpend:
           type: string
-          format: decimal
           default: "0.00"
         totalCashback:
           type: string
-          format: decimal
           default: "0.00"
         budgetCap:
           type: string
-          format: decimal
           default: "0.00"
         eligibility:
           type: string
@@ -743,7 +954,6 @@ components:
           default: "pending"
         remainingBudget:
           type: string
-          format: decimal
           default: "0.00"
         status:
           type: string
@@ -763,3 +973,130 @@ components:
         details:
           type: string
           nullable: true
+    DebtForecastItem:
+      type: object
+      properties:
+        personId:
+          type: string
+          format: uuid
+        totalDebt:
+          type: number
+          format: float
+    CashbackForecastItem:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        totalCashback:
+          type: number
+          format: float
+    AccountBalanceSummary:
+      type: object
+      properties:
+        accountId:
+          type: string
+          format: uuid
+        accountName:
+          type: string
+        totalIncome:
+          type: number
+          format: float
+        totalExpenses:
+          type: number
+          format: float
+        netBalance:
+          type: number
+          format: float
+    CategorySummary:
+      type: object
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+        categoryName:
+          type: string
+        totalAmount:
+          type: number
+          format: float
+        transactionCount:
+          type: integer
+    MovementHistoryItem:
+      type: object
+      properties:
+        transactionId:
+          type: string
+          format: uuid
+        accountId:
+          type: string
+          format: uuid
+        accountName:
+          type: string
+        type:
+          type: string
+          enum: [expense, income, debt, repayment, cashback, subscription, import, adjustment]
+        categoryId:
+          type: string
+          format: uuid
+          nullable: true
+        categoryName:
+          type: string
+          nullable: true
+        amount:
+          type: number
+          format: float
+        occurredOn:
+          type: string
+          format: date
+        notes:
+          type: string
+          nullable: true
+    Pagination:
+      type: object
+      properties:
+        page:
+          type: integer
+        pageSize:
+          type: integer
+        totalCount:
+          type: integer
+        totalPages:
+          type: integer
+    TopExpense:
+      type: object
+      properties:
+        categoryId:
+          type: string
+          format: uuid
+        categoryName:
+          type: string
+        totalAmount:
+          type: number
+          format: float
+    RecurringTrend:
+      type: object
+      properties:
+        yearMonth:
+          type: string
+          pattern: '^\d{4}-\d{2}$'
+        categoryId:
+          type: string
+          format: uuid
+        categoryName:
+          type: string
+        totalAmount:
+          type: number
+          format: float
+        transactionCount:
+          type: integer
+    ForecastData:
+      type: object
+      properties:
+        debtForecast:
+          type: array
+          items:
+            $ref: '#/components/schemas/DebtForecastItem'
+        cashbackForecast:
+          type: array
+          items:
+            $ref: '#/components/schemas/CashbackForecastItem'
