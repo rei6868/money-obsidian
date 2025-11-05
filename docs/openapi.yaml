@@ -649,7 +649,379 @@ paths:
             application/json:
               schema:
                 $ref: '#/components/schemas/Error'
+  /reports/account-summary:
+    get:
+      summary: Get account summaries with opening/closing balance per period
+      tags:
+        - Reporting
+      parameters:
+        - in: query
+          name: accountId
+          schema:
+            type: string
+            format: uuid
+          required: true
+          description: Account ID to get summary for
+        - in: query
+          name: fromDate
+          schema:
+            type: string
+            format: date
+          description: Optional start date for the reporting period (ISO 8601 date)
+        - in: query
+          name: toDate
+          schema:
+            type: string
+            format: date
+          description: Optional end date for the reporting period (ISO 8601 date)
+        - in: query
+          name: page
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            default: 1
+          description: Page number for pagination
+        - in: query
+          name: pageSize
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 100
+            default: 20
+          description: Number of items per page
+        - in: query
+          name: sortBy
+          schema:
+            type: string
+            enum: [occurredOn, amount, type]
+          description: Field to sort by
+        - in: query
+          name: sortDir
+          schema:
+            type: string
+            enum: [asc, desc]
+            default: desc
+          description: Sort direction
+      responses:
+        '200':
+          description: Account summary report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/AccountSummary'
+        '400':
+          description: Invalid input parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '405':
+          description: Method not allowed
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /reports/category-summary:
+    get:
+      summary: Get category spending summaries
+      tags:
+        - Reporting
+      parameters:
+        - in: query
+          name: categoryId
+          schema:
+            type: string
+          description: Optional category ID to filter by
+        - in: query
+          name: fromDate
+          schema:
+            type: string
+            format: date
+          description: Optional start date for the reporting period
+        - in: query
+          name: toDate
+          schema:
+            type: string
+            format: date
+          description: Optional end date for the reporting period
+      responses:
+        '200':
+          description: Category summary report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/CategorySummary'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /reports/debt-cashback-summary:
+    get:
+      summary: Get historical debt and cashback movement analysis
+      tags:
+        - Reporting
+      parameters:
+        - in: query
+          name: personId
+          schema:
+            type: string
+          description: Optional person ID to filter by
+        - in: query
+          name: fromDate
+          schema:
+            type: string
+            format: date
+          description: Optional start date for the reporting period
+        - in: query
+          name: toDate
+          schema:
+            type: string
+            format: date
+          description: Optional end date for the reporting period
+      responses:
+        '200':
+          description: Debt and cashback summary report
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DebtCashbackSummary'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /admin/reconcile:
+    post:
+      summary: Manually trigger reconciliation processes
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                action:
+                  type: string
+                  enum: [autoMatch, closeDebts, closeCashbacks, validate]
+                  description: The reconciliation action to perform
+                period:
+                  type: string
+                  enum: [monthly, yearly]
+                  default: monthly
+                  description: Period for closure actions
+              required:
+                - action
+            examples:
+              autoMatch:
+                summary: Trigger auto-matching of credits and debits
+                value:
+                  action: "autoMatch"
+              closeDebts:
+                summary: Close debts at period end
+                value:
+                  action: "closeDebts"
+                  period: "monthly"
+      responses:
+        '200':
+          description: Reconciliation action completed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  action:
+                    type: string
+                  result:
+                    type: object
+        '400':
+          description: Invalid action or parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /admin/trigger-job:
+    post:
+      summary: Manually trigger scheduled jobs
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                jobType:
+                  type: string
+                  enum: [reconciliation, cleanup, weekly-report, monthly-report, cache-refresh]
+                  description: The type of job to trigger
+              required:
+                - jobType
+            examples:
+              reconciliation:
+                summary: Trigger nightly reconciliation job
+                value:
+                  jobType: "reconciliation"
+              cleanup:
+                summary: Trigger data cleanup job
+                value:
+                  jobType: "cleanup"
+      responses:
+        '200':
+          description: Job triggered successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  jobType:
+                    type: string
+                  result:
+                    type: object
+                  triggeredAt:
+                    type: string
+                    format: date-time
+        '400':
+          description: Invalid job type
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+  /admin/audit:
+    get:
+      summary: Get audit logs for reconciliation and job activities
+      tags:
+        - Admin
+      security:
+        - bearerAuth: []
+      parameters:
+        - in: query
+          name: type
+          schema:
+            type: string
+            enum: [transactions, debt-movements, cashback-movements, job-history]
+          required: true
+          description: Type of audit data to retrieve
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            format: int32
+            minimum: 1
+            maximum: 100
+            default: 50
+          description: Number of records to return
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            format: int32
+            minimum: 0
+            default: 0
+          description: Number of records to skip
+        - in: query
+          name: startDate
+          schema:
+            type: string
+            format: date
+          description: Start date for filtering (ISO 8601)
+        - in: query
+          name: endDate
+          schema:
+            type: string
+            format: date
+          description: End date for filtering (ISO 8601)
+      responses:
+        '200':
+          description: Audit data retrieved successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  audit:
+                    type: array
+                    items:
+                      oneOf:
+                        - $ref: '#/components/schemas/TransactionAudit'
+                        - $ref: '#/components/schemas/DebtMovementAudit'
+                        - $ref: '#/components/schemas/CashbackMovementAudit'
+                        - $ref: '#/components/schemas/JobHistory'
+                  total:
+                    type: integer
+                  limit:
+                    type: integer
+                  offset:
+                    type: integer
+        '400':
+          description: Invalid parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        '500':
+          description: Internal server error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
 components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
   schemas:
     Transaction:
       type: object
@@ -1100,3 +1472,34 @@ components:
           type: array
           items:
             $ref: '#/components/schemas/CashbackForecastItem'
+    AccountSummary:
+      type: object
+      properties:
+        accountId:
+          type: string
+        openingBalance:
+          type: number
+        closingBalance:
+          type: number
+        totalIncome:
+          type: number
+        totalExpenses:
+          type: number
+    CategorySummary:
+      type: object
+      properties:
+        categoryId:
+          type: string
+        totalSpending:
+          type: number
+        numberOfTransactions:
+          type: integer
+    DebtCashbackSummary:
+      type: object
+      properties:
+        personId:
+          type: string
+        totalDebt:
+          type: number
+        totalCashback:
+          type: number
