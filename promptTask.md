@@ -1,48 +1,48 @@
-TASK: Project Phoenix - P2-S3: Backend Analytics & Core Business Reporting
+TASK: Project Dragon - P2-S4: Business Automation & Scheduled Backend Jobs
 
-**Goal:** Build comprehensive backend analytics and business reporting modules for accounts, transactions, debt/cashback ledgers, with API endpoints, tests, and docs. Ensure all implementation passes CI and deploys successfully on Vercel.
+**Goal:** Develop job scheduler, auto-reconciliation, business workflow automation for transactions, debts, cashback, reporting. All new features must pass CI and be ready for Vercel deploy.
 
 **Branch and Commits:**
-- Create a new branch: `feat/P2-S3-backend-reporting`
-- All commit messages must follow the format: `P2-S3: [type](scope) - [description]`
+- Create a new branch: `feat/P2-S4-business-automation`
+- All commit messages must follow format: `P2-S4: [type](scope) - [description]`
 
-**Task 1: Implement Reporting API Endpoints**
-1. Add new files:
-   - `lib/reporting/accountReportLogic.ts` — account summaries, opening/closing balance per period.
-   - `lib/reporting/categoryReportLogic.ts` — category spending summary.
-   - `lib/reporting/debtCashbackReportLogic.ts` — historical debt and cashback movement analysis.
-2. Create endpoint files:
-   - `pages/api/reports/account-summary.ts`
-   - `pages/api/reports/category-summary.ts`
-   - `pages/api/reports/debt-cashback-summary.ts`
-   - Each should accept filters (date range, account/category/personId) and support pagination and sorting where relevant.
+**Task 1: Implement Backend Job Scheduler**
+1. Add file: `lib/automation/jobScheduler.ts`
+   - Support scheduling daily, weekly, monthly jobs via cron or backend timer (use node-cron or similar).
+   - Must include jobs for:
+     - Auto-reconcile daily balances for all accounts.
+     - Scheduled generation of monthly reports and summary stats.
+     - Periodic auditing/fixing of broken ledger records (debt/cashback out-of-sync).
 
-**Task 2: Update Schema/Docs**
-1. Update `docs/openapi.yaml` to document all new endpoints, sample payloads, response format, filter options, and error codes.
-2. Add/Update markdown: `docs/reporting-guide.md` explaining typical use cases, example API queries.
+2. Add command-line entrypoint:
+   - `scripts/runJobs.ts` — runnable for local or CI job simulation/testing.
+   - Accept job name (`--job reconcile`, `--job report`, etc.) and date/time filters.
+   - Ensure CI can invoke and pass (simulate jobs, verify DB changes).
 
-**Task 3: Testing**
-1. Write simulator/integration test script:
-   - `test/test-reporting-api.js`
-   - Script must cover:
-     - CRUD + query for each new reporting endpoint.
-     - Edge cases: missing/invalid filters, empty data, large result sets.
-     - Performance (query with large dataset if possible).
-   - All tests must pass in your local CI (Jest/Playwright or equivalent).
-2. If using Vercel, make sure repo settings don’t block API reporting endpoints / ensure no serverless cold-start errors.
+**Task 2: Extend Integration/Automation Logic**
+1. Update (or add) endpoints:
+   - `pages/api/automation/run-job.ts` — API to trigger jobs manually (for admin/operator/automation tool).
+   - Document endpoint and payload in `docs/openapi.yaml` and `docs/automation-guide.md`.
 
-**Task 4: CI/CD & Vercel Deploy Checks**
-1. Ensure every push to `feat/P2-S3-backend-reporting` triggers CI (lint, test).
-2. All new files must pass linting, typecheck (if using TS), and test.
-3. Deploy preview should pass with all endpoints working (no 500 or 404 from newly added endpoints).
+**Task 3: Automated Tests**
+1. Write test script:
+   - `test/test-automation-api.js`
+     - Must simulate job runs, check DB/post-job output, verify error handling.
+     - Cover edge cases: empty data, race conditions, incomplete/failing job recovery.
+
+2. Ensure all jobs and API automation pass CI, lint, and test.
+
+**Task 4: Docs & Usage**
+1. Update/Create documents:
+   - `docs/automation-guide.md` — detail jobs, schedule, failure handling, recovery process.
+   - API doc update with example job trigger.
 
 ---
 
 **Deliverables:**
-- All new/updated logic and endpoint files as above.
-- Simulator/integration test script(s).
-- Updated OpenAPI + docs/reporting-guide.
-- Checklist that all API and test steps pass on Vercel deploy.
-- If any edge cases are intentionally unsupported or delayed, list them in `docs/reporting-guide.md` under “Limitations”.
+- All logic & endpoint files for backend jobs and automation.
+- Simulator/test scripts for jobs (local + CI pass confirmed).
+- Updated docs/openapi & `automation-guide.md`.
+- Checklist for admin/operator to test jobs before/after deployment.
 
-**Branch:** `feat/P2-S3-backend-reporting`
+**Branch:** `feat/P2-S4-business-automation`
